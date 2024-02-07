@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+</head>
+<body>
+
+<h1>Todo App</h1>
+
+<!-- Create Todo Form -->
+<form id="createTodoForm">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+
+    <label for="content">Content:</label>
+    <textarea id="content" name="content" required></textarea>
+
+    <button type="button" onclick="createTodo()">Create Todo</button>
+</form>
+
+<!-- Todo List -->
+<div id="todoList">
+    <!-- Todo items will be displayed here -->
+</div>
+
+<script>
+    // Function to create a new Todo
+    function createTodo() {
+        const username = document.getElementById("username").value;
+        const title = document.getElementById("title").value;
+        const content = document.getElementById("content").value;
+
+        // Make an Ajax request to the server
+        fetch("/todos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username: username,
+                title: title,
+                content: content
+            })
+        })
+            .then(response => response.json())
+            .then(createdTodo => {
+                // Add the new todo to the list
+                displayTodo(createdTodo);
+            })
+            .catch(error => console.error("Error creating todo:", error));
+    }
+
+    // Function to display a Todo in the list
+    function displayTodo(todo) {
+        const todoList = document.getElementById("todoList");
+
+        const todoItem = document.createElement("div");
+        todoItem.innerHTML = `<strong>${todo.title}</strong> - ${todo.content} - ${todo.username}`;
+        todoList.appendChild(todoItem);
+    }
+
+    // Function to fetch and display all Todos
+    function fetchTodos() {
+        // Make an Ajax request to the server
+        fetch("/todos")
+            .then(response => response.json())
+            .then(todos => {
+                // Display each todo in the list
+                todos.forEach(todo => {
+                    displayTodo(todo);
+                });
+            })
+            .catch(error => console.error("Error fetching todos:", error));
+    }
+
+    // Fetch and display todos when the page loads
+    window.onload = fetchTodos;
+</script>
+
+</body>
+</html>
